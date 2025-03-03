@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой сайт подписки</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        button, input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover, input[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"], input[type="date"], input[type="time"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Important for width */
+        }
+
+        .navigation {
+            text-align: center;
+        }
+
+        #reminders-container {
+            display: flex;
+        }
+
+        #reminders-left, #reminders-right {
+            width: 50%;
+            padding: 10px;
+        }
+
+        .reminder-item {
+            border: 1px solid #ddd;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="home-page">
+    <h1>Добро пожаловать!</h1>
+    <button onclick="showLogin()">Войти</button>
+    <button onclick="showRegister()">Зарегистрироваться</button>
+</div>
+
+<div class="container" id="login-page" style="display:none;">
+    <h2>Вход</h2>
+    <div class="form-group">
+        <label for="login-username">Имя пользователя:</label>
+        <input type="text" id="login-username" name="login-username">
+    </div>
+    <div class="form-group">
+        <label for="login-password">Пароль:</label>
+        <input type="password" id="login-password" name="login-password">
+    </div>
+    <button onclick="authenticate()">Войти</button>
+    <button onclick="showHome()">Назад</button>
+
+</div>
+
+<div class="container" id="register-page" style="display:none;">
+    <h2>Регистрация</h2>
+    <div class="form-group">
+        <label for="register-username">Имя пользователя:</label>
+        <input type="text" id="register-username" name="register-username">
+    </div>
+     <div class="form-group">
+        <label for="register-email">Email:</label>
+        <input type="email" id="register-email" name="register-email">
+    </div>
+    <div class="form-group">
+        <label for="register-password">Пароль:</label>
+        <input type="password" id="register-password" name="register-password">
+    </div>
+    <div class="form-group">
+        <label for="register-password-repeat">Повторите пароль:</label>
+        <input type="password" id="register-password-repeat" name="register-password-repeat">
+    </div>
+    <button onclick="registerUser()">Зарегистрироваться</button>
+    <button onclick="showHome()">Назад</button>
+</div>
+
+
+<div class="container" id="success-page" style="display:none;">
+    <h1>Вход выполнен успешно!</h1>
+    <button onclick="showSubscription()">Оформить подписку</button>
+    <button onclick="showReminders()">Перейти к напоминаниям</button>
+</div>
+
+<div class="container" id="subscription-page" style="display:none;">
+    <h2>Подписка</h2>
+    <div class="form-group">
+        <label for="price">Цена:</label>
+        <input type="text" id="price" value="1199" readonly>
+    </div>
+    <div class="form-group">
+        <label for="promo-code">Промокод:</label>
+        <input type="text" id="promo-code">
+    </div>
+    <button onclick="applyPromoCode()">Применить промокод</button>
+    <button onclick="removePromoCode()">Удалить промокод</button>
+    <button onclick="subscribe()">Оформить подписку</button>
+    <div class="navigation">
+        <button onclick="showSuccess()">Назад</button>
+        <button onclick="logout()">Выйти</button>
+    </div>
+</div>
+
+<div class="container" id="reminders-page" style="display:none;">
+    <h2>Напоминания</h2>
+    <div id="reminders-container">
+        <div id="reminders-left">
+            <div class="form-group">
+                <label for="reminder-date">Дата:</label>
+                <input type="date" id="reminder-date">
+            </div>
+            <div class="form-group">
+                <label for="reminder-time">Время:</label>
+                <input type="time" id="reminder-time">
+            </div>
+            <div class="form-group">
+                <label for="reminder-name">Название:</label>
+                <input type="text" id="reminder-name">
+            </div>
+            <div class="form-group">
+                <label for="reminder-comment">Комментарий:</label>
+                <input type="text" id="reminder-comment">
+            </div>
+            <button onclick="saveReminder()">Сохранить напоминание</button>
+            <button onclick="clearFields()">Очистить поля</button>
+        </div>
+        <div id="reminders-right">
+            <h3>Список напоминаний</h3>
+            <div id="reminders-list">
+                <!-- Reminders will be displayed here -->
+            </div>
+        </div>
+    </div>
+    <button onclick="downloadReminders()">Скачать напоминания</button>
+    <div class="navigation">
+        <button onclick="showSuccess()">Назад</button>
+        <button onclick="logout()">Выйти</button>
+    </div>
+</div>
+
+<script>
+    // Аутентификация
+    let isLoggedIn = false;
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+
+    // Напоминания (Загрузка из local storage - текстовая версия)
+    let remindersText = localStorage.getItem('remindersText') || ""; //получить напоминания в виде текста
+
+    function parseRemindersText(text) {
+        const reminders = [];
+        const lines = text.split('\n');
+        for (let i = 0; i < lines.length; i += 4) {
+            if (lines[i] && lines[i + 1] && lines[i + 2]) {
+                reminders.push({
+                    date: lines[i].substring(lines[i].indexOf(':') + 1).trim(),
+                    time: lines[i + 1].substring(lines[i + 1].indexOf(':') + 1).trim(),
+                    name: lines[i + 2].substring(lines[i + 2].indexOf(':') + 1).trim(),
+                    comment: (lines[i + 3] ? lines[i + 3].substring(lines[i + 3].indexOf(':') + 1).trim() : ''),
+                });
+            }
+        }
+        return reminders;
+    }
+    let reminders = parseRemindersText(remindersText);
+
+    //Управление страницами
+    function showHome() {
+        hideAllPages();
+        document.getElementById('home-page').style.display = 'block';
+    }
+
+    function showLogin() {
+        hideAllPages();
+        document.getElementById('login-page').style.display = 'block';
+    }
+
+    function showRegister() {
+        hideAllPages();
+        document.getElementById('register-page').style.display = 'block';
+    }
+
+    function authenticate() {
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        const user = users.find(user => user.username === username && user.password === password);
+
+        if (user) {
+            isLoggedIn = true;
+            showSuccess();
+        } else {
+            alert('Неверные учетные данные');
+        }
+    }
+
+    function registerUser() {
+        const username = document.getElementById('register-username').value;
+         const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const passwordRepeat = document.getElementById('register-password-repeat').value;
+
+        if (!username || !password || !email || !passwordRepeat) {
+            alert('Пожалуйста, заполните все поля');
+            return;
+        }
+
+        if (password !== passwordRepeat) {
+            alert('Пароли не совпадают');
+            return;
+        }
+
+        if (users.find(user => user.username === username)) {
+            alert('Имя пользователя уже существует');
+            return;
+        }
+
+        const newUser = {username: username, password: password, email: email};
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+
+        alert('Регистрация прошла успешно! Пожалуйста, войдите.');
+        showHome();
+    }
+
+    function logout() {
+        isLoggedIn = false;
+        hideAllPages();
+        showHome();
+    }
+
+    function hideAllPages() {
+        document.getElementById('home-page').style.display = 'none';
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('register-page').style.display = 'none';
+        document.getElementById('success-page').style.display = 'none';
+        document.getElementById('subscription-page').style.display = 'none';
+        document.getElementById('reminders-page').style.display = 'none';
+    }
+
+    function showSuccess() {
+        if (isLoggedIn) {
+            hideAllPages();
+            document.getElementById('success-page').style.display = 'block';
+        } else {
+            alert('Пожалуйста, сначала войдите.');
+            showHome();
+        }
+    }
+
+    function showSubscription() {
+        if (isLoggedIn) {
+            hideAllPages();
+            document.getElementById('subscription-page').style.display = 'block';
+        } else {
+            alert('Пожалуйста, сначала войдите.');
+            showHome();
+        }
+    }
+
+    function showReminders() {
+        if (isLoggedIn) {
+            hideAllPages();
+            document.getElementById('reminders-page').style.display = 'block';
+            displayReminders();
+        } else {
+            alert('Пожалуйста, сначала войдите.');
+            showHome();
+        }
+    }
+
+    // Логика подписки
+    const originalPrice = 1199;
+    let currentPrice = originalPrice;
+    let appliedPromoCode = null;
+
+    function applyPromoCode() {
+        const promoCode = document.getElementById('promo-code').value;
+        const validPromoCodes = ['sale1199', 'sale1000', 'sale999', 'sale1500'];
+
+        if (validPromoCodes.includes(promoCode)) {
+            appliedPromoCode = promoCode;
+            switch (promoCode) {
+                case 'sale1199':
+                    currentPrice = 1199;
+                    break;
+                case 'sale1000':
+                    currentPrice = 1000;
+                    break;
+                case 'sale999':
+                    currentPrice = 999;
+                    break;
+                case 'sale1500':
+                    currentPrice = 1500;
+                    break;
+            }
+            document.getElementById('price').value = currentPrice;
+        } else {
+            alert('Неверный промокод');
+        }
+    }
+
+    function removePromoCode() {
+        currentPrice = originalPrice;
+        document.getElementById('price').value = currentPrice;
+        document.getElementById('promo-code').value = '';
+        appliedPromoCode = null;
+    }
+
+    function subscribe() {
+        alert(`Подписка оформлена за ${currentPrice}!`);
+    }
+
+    // Логика напоминаний (Текстовый файл)
+
+    function saveReminder() {
+        const date = document.getElementById('reminder-date').value;
+        const time = document.getElementById('reminder-time').value;
+        const name = document.getElementById('reminder-name').value;
+        const comment = document.getElementById('reminder-comment').value;
+
+        if (!date || !time || !name) {
+            alert('Пожалуйста, заполните все поля.');
+            return;
+        }
+
+        const reminderText = `Дата: ${date}\nВремя: ${time}\nНазвание: ${name}\nКомментарий: ${comment}\n`;
+        remindersText += reminderText;
+        localStorage.setItem('remindersText', remindersText);
+        reminders = parseRemindersText(remindersText);
+        displayReminders();
+        clearFields();
+    }
+
+    function clearFields() {
+        document.getElementById('reminder-date').value = '';
+        document.getElementById('reminder-time').value = '';
+        document.getElementById('reminder-name').value = '';
+        document.getElementById('reminder-comment').value = '';
+    }
+
+    function displayReminders() {
+        const remindersList = document.getElementById('reminders-list');
+        remindersList.innerHTML = '';
+
+        reminders.forEach((reminder, index) => {
+            const reminderDiv = document.createElement('div');
+            reminderDiv.classList.add('reminder-item');
+            reminderDiv.innerHTML = `
+                <p><b>Дата:</b> ${reminder.date}</p>
+                <p><b>Время:</b> ${reminder.time}</p>
+                <p><b>Название:</b> ${reminder.name}</p>
+                <p><b>Комментарий:</b> ${reminder.comment}</p>
+                <button onclick="deleteReminder(${index})">Удалить</button>
+                <button onclick="editReminder(${index})">Редактировать</button>
+            `;
+            remindersList.appendChild(reminderDiv);
+        });
+    }
+
+    function deleteReminder(index) {
+        reminders.splice(index, 1);
+        let newRemindersText = "";
+        reminders.forEach((reminder) => {
+           newRemindersText += `Дата: ${reminder.date}\nВремя: ${reminder.time}\nНазвание: ${reminder.name}\nКомментарий: ${reminder.comment}\n`;
+        });
+        remindersText = newRemindersText;
+        localStorage.setItem('remindersText', remindersText);
+        displayReminders();
+    }
+
+    function editReminder(index) {
+        const reminder = reminders[index];
+        document.getElementById('reminder-date').value = reminder.date;
+        document.getElementById('reminder-time').value = reminder.time;
+        document.getElementById('reminder-name').value = reminder.name;
+        document.getElementById('reminder-comment').value = reminder.comment;
+
+        reminders.splice(index, 1);
+
+        let newRemindersText = "";
+        reminders.forEach((reminder) => {
+           newRemindersText += `Дата: ${reminder.date}\nВремя: ${reminder.time}\nНазвание: ${reminder.name}\nКомментарий: ${reminder.comment}\n`;
+        });
+        remindersText = newRemindersText;
+        localStorage.setItem('remindersText', remindersText);
+        displayReminders();
+    }
+
+    function downloadReminders() {
+        const filename = "reminders.txt";
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(remindersText));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    // Инициализация
+    showHome();
+</script>
+
+</body>
+</html>
